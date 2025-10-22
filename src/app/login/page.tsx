@@ -1,18 +1,16 @@
 'use server';
 
 import { JSX } from 'react';
-import Image from 'next/image';
-import { Main } from '@/components/pages/home';
+import { Main } from '@/components/pages/login';
 import { cookies } from 'next/headers';
 import { redirect, RedirectType } from 'next/navigation';
 
-const Home = async (): Promise<JSX.Element> => {
+const Login = async (): Promise<JSX.Element> => {
   const cookieStore = await cookies();
   const user = cookieStore.get('user');
 
-  if (!user) redirect('/login', RedirectType.replace);
-
+  if (user) redirect('/', RedirectType.replace);
   return <Main />;
 };
 
-export default Home;
+export default Login;
