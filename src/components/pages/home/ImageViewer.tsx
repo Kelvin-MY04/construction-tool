@@ -4,7 +4,12 @@ import { JSX, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useStudio } from '@/stores';
 import { Loader2 } from 'lucide-react';
-import { CanvasSegmentation, Navigator } from '.';
+import dynamic from 'next/dynamic';
+
+const CanvasSegmentation = dynamic(() => import('./CanvasSegmentation'), {
+  ssr: false,
+});
+const Navigator = dynamic(() => import('./Navigator'), { ssr: false });
 
 const ImageViewer = (): JSX.Element => {
   const { segmentation, jsonData, imgSrc } = useStudio();
@@ -14,6 +19,7 @@ const ImageViewer = (): JSX.Element => {
     let x = 0,
       points = [];
     if (segmentation && segmentation.length > 0) {
+      console.log(segmentation);
       segmentation[0].forEach((item: any, index: number) => {
         if (index % 2 === 0) {
           x = (1200 / +jsonData?.images[0]?.width) * item;
@@ -25,6 +31,7 @@ const ImageViewer = (): JSX.Element => {
           });
         }
       });
+      console.log(points, 'POINTS');
       setSegmentationPoints(points);
     }
   }, [segmentation]);

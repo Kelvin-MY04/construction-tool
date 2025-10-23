@@ -11,6 +11,8 @@ import { readYaml, createYaml } from '@/lib/yamlHandler';
 
 interface NewLabelsProps {
   labels: string[];
+  calculatePercent: () => number;
+  setPercent: Dispatch<SetStateAction<number>>;
   setLabels: Dispatch<SetStateAction<string[]>>;
   filteredData: any;
   setActiveIndex: Dispatch<SetStateAction<number>>;
@@ -19,7 +21,9 @@ interface NewLabelsProps {
 
 const NewLabels = ({
   labels,
+  calculatePercent,
   setLabels,
+  setPercent,
   filteredData,
   setActiveIndex,
   activeIndex,
@@ -31,6 +35,9 @@ const NewLabels = ({
     setActiveLabel(value);
     filteredData[activeIndex].attributes['구조_벽체'] = value;
     setActiveIndex(activeIndex + 1);
+
+    const res = calculatePercent();
+    setPercent(res);
   };
 
   return (

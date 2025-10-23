@@ -1,12 +1,15 @@
 'use client';
 
 import { JSX, useState, useEffect } from 'react';
-import { ImageViewer, Sidebar } from '.';
 import { useFetchDataList } from '@/lib/queries';
 import { useStudio } from '@/stores';
 import { listFiles } from '@/lib/googleCloudStorage';
 import Cookies from 'js-cookie';
 import { checkYamlExist, readYaml } from '@/lib/yamlHandler';
+import dynamic from 'next/dynamic';
+
+const ImageViewer = dynamic(() => import('./ImageViewer'), { ssr: false });
+const Sidebar = dynamic(() => import('./Sidebar'), { ssr: false });
 
 const Main = (): JSX.Element => {
   const user = Cookies.get('user');

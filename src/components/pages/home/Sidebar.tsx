@@ -2,11 +2,15 @@
 
 import { JSX, useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button.tsx';
-import { List, NewLabels, DataLabels } from '.';
 import { useStudio } from '@/stores';
 import { readYaml } from '@/lib/yamlHandler';
 import { mutate } from 'swr';
 import { uploadFile } from '@/lib/googleCloudStorage';
+import dynamic from 'next/dynamic';
+
+const List = dynamic(() => import('./List'), { ssr: false });
+const NewLabels = dynamic(() => import('./NewLabels'), { ssr: false });
+const DataLabels = dynamic(() => import('./DataLabels'), { ssr: false });
 
 const Sidebar = (): JSX.Element => {
   const {
@@ -20,6 +24,13 @@ const Sidebar = (): JSX.Element => {
   } = useStudio();
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const [labels, setLabels] = useState<string[]>([]);
+  const [percent, setPercent] = useState<number>(0);
+
+  const filteredData = jsonData?.annotations.filter(
+    (item) =>
+      item.attributes['구조_벽체'] === '기타벽' ||
+      labels.includes(item.attributes['구조_벽체'])
+  );
 
   useEffect(() => {
     const loadLabels = async () => await readYaml('config');
@@ -27,11 +38,10 @@ const Sidebar = (): JSX.Element => {
     loadLabels().then((res) => setLabels(res.labels));
   }, []);
 
-  const filteredData = jsonData?.annotations.filter(
-    (item) =>
-      item.attributes['구조_벽체'] === '기타벽' ||
-      labels.includes(item.attributes['구조_벽체'])
-  );
+  useEffect(() => {
+    const res = calculatePercent();
+    setPercent(res || 0);
+  }, [filteredData]);
 
   const handleClearBtn = (): void => mutate(jsonSrc);
 
@@ -55,16 +65,31 @@ const Sidebar = (): JSX.Element => {
     }
   };
 
+  const calculatePercent = (): number => {
+    const done = filteredData?.filter(
+      (item) => item.attributes['구조_벽체'] !== '기타벽'
+    ).length;
+    const total = filteredData?.length;
+
+    console.log(done, total);
+
+    return (done / total) * 100;
+  };
+
   return (
     <>
       <div className="w-1/4 relative p-5 flex flex-col gap-y-4 h-screen">
         <DataLabels
+          percent={percent}
+          labels={labels}
           filteredData={filteredData}
           setActiveIndex={setActiveIndex}
           activeIndex={activeIndex}
         />
         <NewLabels
+          calculatePercent={calculatePercent}
           labels={labels}
+          setPercent={setPercent}
           setLabels={setLabels}
           setActiveIndex={setActiveIndex}
           filteredData={filteredData}
