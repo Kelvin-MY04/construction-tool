@@ -17,7 +17,10 @@ import { useRouter } from 'next/navigation';
 import { checkYamlExist } from '@/lib/yamlHandler';
 
 const loginSchema = z.object({
-  name: z.string().min(2, { message: 'Name must be at least 2 characters' }),
+  name: z
+    .string()
+    .min(2, { message: 'Name must be at least 2 characters' })
+    .regex(/^[a-zA-Z]+$/, 'Name should only contain letters'),
 });
 
 const Main = (): JSX.Element => {

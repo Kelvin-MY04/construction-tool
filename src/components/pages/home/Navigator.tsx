@@ -2,12 +2,14 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ChevronRight, ChevronLeft } from 'lucide-react';
+import { ChevronRight, ChevronLeft, LogOut } from 'lucide-react';
 import { useStudio } from '@/stores';
 import Cookies from 'js-cookie';
 import { start } from '@/lib/script';
+import { useRouter } from 'next/navigation';
 
 const Navigator = (): JSX.Element => {
+  const router = useRouter();
   const user = Cookies.get('user');
   const { jsonData, index, dataList, setIndex, setImgSrc, setJsonSrc } =
     useStudio();
@@ -22,9 +24,14 @@ const Navigator = (): JSX.Element => {
     }
   };
 
+  const handleLogOutBtn = (): void => {
+    Cookies.remove('user');
+    router.replace('/login');
+  };
+
   return (
     <>
-      <div className="flex flex-row justify-between absolute top-5 w-full max-w-[1200px]">
+      <div className="flex flex-row gap-x-3 justify-center absolute top-5 w-full max-w-[1200px]">
         <Button
           className="rounded-full cursor-pointer"
           size="icon"
@@ -43,6 +50,16 @@ const Navigator = (): JSX.Element => {
           onClick={() => handleClick(index + 1)}
         >
           <ChevronRight />
+        </Button>
+      </div>
+      <div className="absolute top-5 right-5 flex flex-row gap-x-2 items-center">
+        <span className="font-medium">{user}</span>
+        <Button
+          size="icon"
+          className="rounded-full cursor-pointer"
+          onClick={handleLogOutBtn}
+        >
+          <LogOut className="text-white" />
         </Button>
       </div>
       {(user === 'andy' || user === 'kelvin') && (
