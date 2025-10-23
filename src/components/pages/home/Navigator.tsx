@@ -1,18 +1,22 @@
 'use client';
 
+import { JSX, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ChevronRight, ChevronLeft, LogOut } from 'lucide-react';
+import { ChevronRight, ChevronLeft, LogOut, Boxes } from 'lucide-react';
 import { useStudio } from '@/stores';
 import Cookies from 'js-cookie';
 import { start } from '@/lib/script';
+import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 const Navigator = (): JSX.Element => {
   const router = useRouter();
   const user = Cookies.get('user');
   const { jsonData, index, dataList, setIndex, setImgSrc, setJsonSrc } =
     useStudio();
+  const [isAllocating, setIsAllocating] = useState<boolean>(false);
 
   const handleClick = (indexNo: number): void => {
     if (dataList[indexNo]) {
@@ -27,6 +31,17 @@ const Navigator = (): JSX.Element => {
   const handleLogOutBtn = (): void => {
     Cookies.remove('user');
     router.replace('/login');
+  };
+
+  const handleAllocate = async (): void => {
+    setIsAllocating(true);
+    const isAllocated = await start();
+    if (isAllocated) {
+      toast.success('Dataset is allocated successfully!');
+    } else {
+      toast.error('Failed to allocate the Dataset');
+    }
+    setIsAllocating(false);
   };
 
   return (
@@ -59,16 +74,25 @@ const Navigator = (): JSX.Element => {
           className="rounded-full cursor-pointer"
           onClick={handleLogOutBtn}
         >
-          <LogOut className="text-white" />
+          <LogOut />
         </Button>
       </div>
       {(user === 'andy' || user === 'kelvin') && (
         <Button
-          onClick={start}
-          className="absolute bottom-5 left-auto right-auto cursor-pointer"
+          size="icon"
+          onClick={handleAllocate}
+          className="absolute top-5 left-5 cursor-pointer rounded-full"
         >
-          Start
+          <Boxes />
         </Button>
+      )}
+      {isAllocating && (
+        <div className="fixed top-0 left-0 w-full h-screen z-50 flex justify-center items-center bg-black/70">
+          <div className="flex flex-col gap-y-2 justify-center items-center">
+            <Loader2 className="animate-spin text-white" />
+            <span className="text-white font-medium">Allocating...</span>
+          </div>
+        </div>
       )}
     </>
   );
