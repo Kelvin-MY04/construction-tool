@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Data Label Preparation for Construction Floor Plan Calculation
 
-## Getting Started
+## Description
 
-First, run the development server:
+This is a data label preparation project tool for construction floor plan calculation AI project. This project provides faster data labeling functions for over thousand floor plans, designed to be driven by users.
+
+### User Management
+
+- **User Configuration**: Users are initially defined in `/configs/` as YAML files
+- **New User Registration**: To register new user accounts, create a new YAML file named after the username in the `/configs/` directory
+- **Admin Account**: Admin account is already defined in the codebase
+- **Data Distribution**: Data splitting for users function is automatically involved in the admin account
+
+### Storage
+
+Floor plan files are stored on Google Cloud Storage Platform.
+
+## Installation
+
+### Prerequisites
+
+1. **Install Dependencies**
+
+   Run one of the following commands to install node modules:
+
+```bash
+   npm install
+```
+
+or
+
+```bash
+   bun add .
+```
+
+2. **Google Cloud Platform Setup**
+
+   Create a service account in Google Cloud Platform with appropriate permissions for Cloud Storage access.
+
+3. **Environment Configuration**
+
+   Create a `.env.local` file in the project root directory and add the following environment variables:
+
+```bash
+   # .env.local
+   GOOGLE_CLOUD_PROJECT_ID=<YOUR_PROJECT_ID>
+   GOOGLE_CLOUD_BUCKET_NAME=<YOUR_BUCKET_NAME>
+   GOOGLE_CLOUD_CLIENT_EMAIL=<YOUR_CLIENT_EMAIL>
+   GOOGLE_CLOUD_PRIVATE_KEY=<YOUR_PRIVATE_KEY>
+```
+
+## Usage
+
+### Running the Development Server
+
+Start the development server using one of the following commands:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+or
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+bun run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The project will be accessible at `http://localhost:3000`
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+.
+├── configs/          # User configuration YAML files
+├── .env.local        # Environment variables (not committed to repository)
+└── ...
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Notes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Ensure your Google Cloud service account has the necessary permissions to read/write to the specified bucket
+- Keep your `.env.local` file secure and never commit it to version control
+- Add `.env.local` to your `.gitignore` file if not already present

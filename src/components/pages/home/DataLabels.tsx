@@ -1,22 +1,29 @@
 'use client';
 
-import { JSX, Dispatch, SetStateAction, useState, useEffect } from 'react';
+import {
+  JSX,
+  Dispatch,
+  SetStateAction,
+  useState,
+  useEffect,
+  useRef,
+} from 'react';
 import { useFetchJsonData } from '@/lib/queries';
 import { useStudio } from '@/stores';
 import { Check } from 'lucide-react';
-import { Progress } from '@/components/ui/progress';
+import { ProgressBar } from '.';
 
 interface DataLabelsProps {
   filteredData: any;
   labels: string[];
-  percent: number;
+  labelPercent: number;
   activeIndex: number;
   setActiveIndex: Dispatch<SetStateAction<number>>;
 }
 
 const DataLabels = ({
   filteredData,
-  percent,
+  labelPercent,
   labels,
   activeIndex,
   setActiveIndex,
@@ -24,6 +31,7 @@ const DataLabels = ({
   const { jsonSrc, jsonData, setJsonData, setSegmentation } = useStudio();
   const { data, error, isLoading } = useFetchJsonData(jsonSrc);
   const isData = data && data.annotations && data.annotations.length > 0;
+  const itemsRef = useRef([]);
 
   const handleClick = (item: any, index: number): void => {
     setSegmentation(item.segmentation);
@@ -38,30 +46,38 @@ const DataLabels = ({
 
   useEffect(() => {
     if (isData) {
-      setSegmentation(
-        data.annotations.filter(
-          (item) =>
-            item.attributes['구조_벽체'] === '기타벽' ||
-            labels.includes(item.attributes['구조_벽체'])
-        )[activeIndex].segmentation
+      const filtered = data.annotations.filter(
+        (item) =>
+          item.attributes['구조_벽체'] === '기타벽' ||
+          labels.includes(item.attributes['구조_벽체'])
       );
+
+      if (filtered && activeIndex < filtered.length) {
+        setSegmentation(filtered[activeIndex].segmentation);
+      }
     }
   }, [isLoading, data, activeIndex]);
+
+  useEffect(() => {
+    if (itemsRef) {
+      itemsRef.current[activeIndex]?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'nearest',
+      });
+    }
+  }, [activeIndex]);
 
   return (
     <div className="flex flex-col gap-y-2">
       <h3 className="font-bold text-xl">Data Labels</h3>
-      <div className="flex flex-row items-center gap-x-2">
-        <span className="font-semibold" suppressHydrationWarning>
-          {Math.round(percent)}%
-        </span>
-        <Progress value={percent} />
-      </div>
+      <ProgressBar percent={labelPercent} />
       <ul className="flex flex-col border border-solid border-gray-300 rounded-sm divide-y divide-gray-300 h-fit max-h-[20vh] overflow-auto">
         {isData &&
           filteredData &&
           filteredData.map((item, index) => (
             <li
+              ref={(el) => (itemsRef.current[index] = el)}
               key={index}
               onClick={() => handleClick(item, index)}
               className={`py-2 px-3 cursor-pointer flex flex-row items-center justify-between ${activeIndex === index ? 'font-semibold hover:text-white hover:bg-black bg-black text-white' : item.attributes['구조_벽체'] !== '기타벽' ? 'fonr-regular text-green-900 bg-green-100 hover:text-green-900 hover:bg-green-100' : 'font-regular hover:font-semibold hover:bg-gray-100'}`}

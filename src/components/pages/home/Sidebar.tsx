@@ -8,7 +8,7 @@ import { mutate } from 'swr';
 import { uploadFile } from '@/lib/googleCloudStorage';
 import dynamic from 'next/dynamic';
 
-const List = dynamic(() => import('./List'), { ssr: false });
+const FileList = dynamic(() => import('./FileList'), { ssr: false });
 const NewLabels = dynamic(() => import('./NewLabels'), { ssr: false });
 const DataLabels = dynamic(() => import('./DataLabels'), { ssr: false });
 
@@ -24,7 +24,7 @@ const Sidebar = (): JSX.Element => {
   } = useStudio();
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const [labels, setLabels] = useState<string[]>([]);
-  const [percent, setPercent] = useState<number>(0);
+  const [labelPercent, setLabelPercent] = useState<number>(0);
 
   const filteredData = jsonData?.annotations.filter(
     (item) =>
@@ -39,11 +39,14 @@ const Sidebar = (): JSX.Element => {
   }, []);
 
   useEffect(() => {
-    const res = calculatePercent();
-    setPercent(res || 0);
+    const res = calculateLabelPercent();
+    setLabelPercent(res || 0);
   }, [filteredData]);
 
-  const handleClearBtn = (): void => mutate(jsonSrc);
+  const handleClearBtn = (): void => {
+    mutate(jsonSrc);
+    setActiveIndex(0);
+  };
 
   const handleSaveBtn = async (): void => {
     const filename = jsonSrc.split('/')[jsonSrc.split('/').length - 1];
@@ -65,13 +68,11 @@ const Sidebar = (): JSX.Element => {
     }
   };
 
-  const calculatePercent = (): number => {
+  const calculateLabelPercent = (): number => {
     const done = filteredData?.filter(
       (item) => item.attributes['구조_벽체'] !== '기타벽'
     ).length;
     const total = filteredData?.length;
-
-    console.log(done, total);
 
     return (done / total) * 100;
   };
@@ -80,22 +81,22 @@ const Sidebar = (): JSX.Element => {
     <>
       <div className="w-1/4 relative p-5 flex flex-col gap-y-4 h-screen">
         <DataLabels
-          percent={percent}
+          labelPercent={labelPercent}
           labels={labels}
           filteredData={filteredData}
           setActiveIndex={setActiveIndex}
           activeIndex={activeIndex}
         />
         <NewLabels
-          calculatePercent={calculatePercent}
+          calculateLabelPercent={calculateLabelPercent}
           labels={labels}
-          setPercent={setPercent}
+          setLabelPercent={setLabelPercent}
           setLabels={setLabels}
           setActiveIndex={setActiveIndex}
           filteredData={filteredData}
           activeIndex={activeIndex}
         />
-        <List />
+        <FileList />
         <div className="absolute bottom-0 left-0 w-full py-5 pr-5 flex flex-row gap-x-3">
           <Button
             variant="secondary"
